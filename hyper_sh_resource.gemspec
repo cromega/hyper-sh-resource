@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.licenses      = ["MIT"]
   spec.homepage      = "https://github.com/cromega/hyper-sh-resource"
 
-  spec.files         = Dir.glob("{lib,bin}/**/*")
+  spec.files         = Dir.glob("lib/**/*")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
