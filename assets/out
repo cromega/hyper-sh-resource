@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require "json"
+
+require "hyper_sh"
+
+input = JSON.parse(STDIN.read)
+
+source = input["source"]
+params = input["params"]
+
+deployer = HyperSH::Deployer.new
+puts deployer.prepare(source).deploy(params)

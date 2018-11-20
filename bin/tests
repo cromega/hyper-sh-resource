@@ -1,0 +1,41 @@
+#!/bin/bash -e
+
+IMAGE_NAME=hyper_sh_resource_test
+
+now=$(date +%s)
+
+create_build_base_image() {
+  docker build --no-cache -t $IMAGE_NAME -f spec/Dockerfile .
+}
+
+update_base_image_if_deps_changed() {
+  if ! docker images | grep -q $IMAGE_NAME; then
+    build_container_build_time=0
+  else
+    build_container_build_time=$(docker inspect $IMAGE_NAME -f '{{ .Created }}' | xargs date +%s -d)
+  fi
+
+  deps_changed_at=$(stat -c %Y Gemfile.lock)
+
+  if [ $deps_changed_at -ge $build_container_build_time ]; then
+    create_build_base_image
+  fi
+}
+
+run_tests() {
+  container_name=$IMAGE_NAME-$now
+
+  docker run -d --rm --name $container_name $IMAGE_NAME tail -f /dev/null
+  docker cp . $container_name:/app
+  docker exec -w /app -t $container_name bundle exec rspec
+}
+
+cleanup() {
+  echo -n "Deleting container "
+  docker kill $IMAGE_NAME-$now
+}
+trap cleanup EXIT
+
+update_base_image_if_deps_changed
+run_tests
+
