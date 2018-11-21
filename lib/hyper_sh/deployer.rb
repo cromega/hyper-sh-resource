@@ -41,6 +41,16 @@ module HyperSH
 
       runner.arg(params["image"]).
         run
+
+      params["public_ip"]&.tap do |ip|
+        CommandRunner.new.
+          command("hyper").
+          arg("fip").
+          arg("attach").
+          arg(ip).
+          arg(params["name"]).
+          run
+      end
     end
   end
 end

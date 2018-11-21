@@ -5,7 +5,7 @@ module HyperSH
   class CommandRunner
     class << self
       def history
-        @@commands
+        @@commands ||= []
       end
     end
 

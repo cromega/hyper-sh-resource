@@ -26,9 +26,13 @@ module HyperSH
     end
 
     describe "#deploy" do
+      before do
+        CommandRunner.history.clear
+      end
+
       subject { described_class.new.prepare(source) }
 
-      let(:cmd) { CommandRunner.history.last }
+      let(:last_cmd) { CommandRunner.history.last }
 
       context "with basic app params" do
         let(:params) do
@@ -41,7 +45,7 @@ module HyperSH
 
         it "deploys a container to hyper.sh with basic options" do
           subject.deploy(params)
-          expect(cmd).to eq "hyper run -d --restart=always --size=s1 --name=app cromega/app"
+          expect(last_cmd).to eq "hyper run -d --restart=always --size=s1 --name=app cromega/app"
         end
       end
 
@@ -57,7 +61,7 @@ module HyperSH
 
         it "deploys the container with ports forwarded" do
           subject.deploy(params)
-          expect(cmd).to include "-p 25:25"
+          expect(last_cmd).to include "-p 25:25"
         end
       end
 
@@ -75,7 +79,23 @@ module HyperSH
 
         it "deploys the container with ports forwarded" do
           subject.deploy(params)
-          expect(cmd).to include "-e ENV_VAR\\=env\\ var"
+          expect(last_cmd).to include "-e ENV_VAR\\=env\\ var"
+        end
+      end
+
+      context "when the app has a public IP" do
+        let(:params) do
+          {
+            "name" => "app",
+            "image" => "cromega/app",
+            "size" => "s1",
+            "public_ip" => "123.456.789.123"
+          }
+        end
+
+        it "attaches the IP to the app" do
+          subject.deploy(params)
+          expect(last_cmd).to eq "hyper fip attach 123.456.789.123 app"
         end
       end
     end
