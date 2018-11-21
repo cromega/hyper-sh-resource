@@ -4,7 +4,7 @@ resources:
   source:
     uri: git@github.com:cromega/hyper-sh-resource
     private_key: {{deploy-key}}
-- name: image
+- name: docker-image
   type: docker-image
   source:
     repository: cromega/hyper-sh-resource
@@ -19,6 +19,6 @@ jobs:
     trigger: true
   - task: test
     file: code/ci/test.yml
-  - put: image
+  - put: docker-image
     params:
       build: code/
