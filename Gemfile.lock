@@ -35,8 +35,8 @@ PLATFORMS
 
 DEPENDENCIES
   hyper_sh_resource!
-  pry-nav
+  pry-nav (~> 0.2)
   rspec (~> 3.0)
 
 BUNDLED WITH
-   1.16.5
+   1.17.1
