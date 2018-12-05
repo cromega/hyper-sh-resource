@@ -1,7 +1,7 @@
 require "fileutils"
 require "json"
 
-require "hyper_sh/command_runner"
+require "hyper_sh/command_builder"
 
 module HyperSH
   class Deployer
@@ -23,7 +23,8 @@ module HyperSH
     end
 
     def deploy(params)
-      runner = CommandRunner.new.
+      commands = []
+      command = CommandBuilder.new.
         command("hyper").
         arg("run").
         sparam("d").
@@ -32,25 +33,26 @@ module HyperSH
         lparam("name", params["name"])
 
       params.fetch("ports", []).each do |port|
-        runner.sparam("p", port)
+        command.sparam("p", port)
       end
 
       params.fetch("env", {}).each do |key, value|
-        runner.sparam("e", [key, value].join("="))
+        command.sparam("e", [key, value].join("="))
       end
 
-      runner.arg(params["image"]).
-        run
+      command.arg(params["image"])
+      commands << command
 
       params["public_ip"]&.tap do |ip|
-        CommandRunner.new.
+        commands << CommandBuilder.new.
           command("hyper").
           arg("fip").
           arg("attach").
           arg(ip).
-          arg(params["name"]).
-          run
+          arg(params["name"])
       end
+
+      commands
     end
   end
 end
