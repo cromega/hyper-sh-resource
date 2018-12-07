@@ -2,7 +2,7 @@ FROM ruby:2.5-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get -y --no-install-recommends install wget jq
+    apt-get -y --no-install-recommends install wget
 RUN wget https://hyper-install.s3.amazonaws.com/hyper-linux-x86_64.tar.gz -O- | tar -xzf - -C /usr/local/bin
 
 COPY . /gem/
