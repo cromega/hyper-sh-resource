@@ -8,8 +8,8 @@ RUN wget https://hyper-install.s3.amazonaws.com/hyper-linux-x86_64.tar.gz -O- | 
 COPY . /gem/
 
 WORKDIR /gem
-RUN bundle install && \
+RUN bundle install --without=development && \
     gem build hyper_sh_resource.gemspec && \
-    gem install *.gem
+    gem install --ignore-dependencies *.gem
 
 COPY assets/* /opt/resource/
