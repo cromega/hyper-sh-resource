@@ -89,7 +89,7 @@ module HyperSH
 
         it "returns the deploy commands" do
           commands = subject.deploy(params)
-          expect(commands.last.cmdline).to eq "hyper fip attach 123.456.789.123 app"
+          expect(commands.last.cmdline).to eq "hyper fip attach -f 123.456.789.123 app"
         end
       end
     end

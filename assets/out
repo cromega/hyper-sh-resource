@@ -10,4 +10,8 @@ source = input["source"]
 params = input["params"]
 
 deployer = HyperSH::Deployer.new
-puts deployer.prepare(source).deploy(params)
+commands = deployer.prepare(source).deploy(params)
+commands.each do |c|
+  puts HyperSH::CommandRunner.new.run(c).output
+end
+

@@ -24,6 +24,17 @@ module HyperSH
 
     def deploy(params)
       commands = []
+
+      if container_exists?(params["name"])
+        command = CommandBuilder.new.
+          command("hyper").
+          arg("rm").
+          sparam("f").
+          arg(params["name"])
+
+        CommandRunner.new.run(command)
+      end
+
       command = CommandBuilder.new.
         command("hyper").
         arg("run").
@@ -48,11 +59,21 @@ module HyperSH
           command("hyper").
           arg("fip").
           arg("attach").
+          sparam("f").
           arg(ip).
           arg(params["name"])
       end
 
       commands
+    end
+
+    def container_exists?(name)
+      command = CommandBuilder.new.
+        command("hyper").
+        arg("inspect").
+        arg(name)
+
+      CommandRunner.new.run(command).success?
     end
   end
 end
