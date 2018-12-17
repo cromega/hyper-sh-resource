@@ -2,6 +2,10 @@ require "hyper_sh/command_runner"
 
   describe HyperSH::CommandRunner do
     describe ".run" do
+      before do
+        allow(STDERR).to receive(:puts)
+      end
+
       context "when the command succeeds" do
         let(:command) { double(:command, cmdline: "echo 123") }
         it "returns the stdout of the process" do
@@ -9,9 +13,14 @@ require "hyper_sh/command_runner"
           expect(output).to eq "123\n"
         end
 
-        it "returns the exit status of the process" do
-          _, status = described_class.run(command)
-          expect(status).to eq true
+        it "returns the exit success of the process" do
+          _, success = described_class.run(command)
+          expect(success).to eq true
+        end
+
+        it "sends output to stderr" do
+          described_class.run(command)
+          expect(STDERR).to have_received(:puts).with("123\n")
         end
       end
 
@@ -26,9 +35,9 @@ require "hyper_sh/command_runner"
         let(:command) { double(:command, cmdline: "false") }
 
         context "when fail on error is not set" do
-          it "returns the exit status of the process" do
-            _, status = described_class.run(command)
-            expect(status).to eq false
+          it "returns false" do
+            _, success = described_class.run(command)
+            expect(success).to eq false
           end
         end
       end
