@@ -9,9 +9,5 @@ input = JSON.parse(STDIN.read)
 source = input["source"]
 params = input["params"]
 
-deployer = HyperSH::Deployer.new
-commands = deployer.prepare(source).deploy(params)
-commands.each do |c|
-  puts HyperSH::CommandRunner.new.run(c).output
-end
+HyperSH::Deployer.new.prepare(source).deploy(params)
 

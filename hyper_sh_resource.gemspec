@@ -11,5 +11,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "shell_mock", "~> 0.7"
   spec.add_development_dependency "pry-nav", "~> 0.2"
 end

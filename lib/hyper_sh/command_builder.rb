@@ -10,12 +10,8 @@ module HyperSH
     end
 
     def initialize
+      @cmd = "hyper"
       @args = []
-    end
-
-    def command(cmd)
-      @cmd = cmd
-      self
     end
 
     def sparam(flag_or_value, value = nil)

@@ -28,6 +28,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
+    shell_mock (0.7.1)
     slop (3.6.0)
 
 PLATFORMS
@@ -37,6 +38,7 @@ DEPENDENCIES
   hyper_sh_resource!
   pry-nav (~> 0.2)
   rspec (~> 3.0)
+  shell_mock (~> 0.7)
 
 BUNDLED WITH
    1.17.1

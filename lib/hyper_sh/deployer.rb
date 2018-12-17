@@ -2,6 +2,7 @@ require "fileutils"
 require "json"
 
 require "hyper_sh/command_builder"
+require "hyper_sh/command_runner"
 
 module HyperSH
   class Deployer
@@ -23,20 +24,28 @@ module HyperSH
     end
 
     def deploy(params)
-      commands = []
-
       if container_exists?(params["name"])
-        command = CommandBuilder.new.
-          command("hyper").
-          arg("rm").
-          sparam("f").
-          arg(params["name"])
-
-        CommandRunner.new.run(command)
+        delete_container(params["name"])
       end
 
+      create_container(params)
+
+      params["public_ip"]&.tap do |ip|
+        attach_floating_ip(params["name"], ip)
+      end
+    end
+
+    def container_exists?(name)
       command = CommandBuilder.new.
-        command("hyper").
+        arg("inspect").
+        arg(name)
+
+      _, status = CommandRunner.run(command)
+      status
+    end
+
+    def create_container(params)
+      command = CommandBuilder.new.
         arg("run").
         sparam("d").
         lparam("restart", "always").
@@ -52,28 +61,28 @@ module HyperSH
       end
 
       command.arg(params["image"])
-      commands << command
 
-      params["public_ip"]&.tap do |ip|
-        commands << CommandBuilder.new.
-          command("hyper").
-          arg("fip").
-          arg("attach").
-          sparam("f").
-          arg(ip).
-          arg(params["name"])
-      end
-
-      commands
+      CommandRunner.run(command, fail_on_error: true)
     end
 
-    def container_exists?(name)
+    def delete_container(name)
       command = CommandBuilder.new.
-        command("hyper").
-        arg("inspect").
+        arg("rm").
+        sparam("f").
         arg(name)
 
-      CommandRunner.new.run(command).success?
+      CommandRunner.run(command, fail_on_error: true)
+    end
+
+    def attach_floating_ip(name, ip)
+      command = CommandBuilder.new.
+        arg("fip").
+        arg("attach").
+        sparam("f").
+        arg(ip).
+        arg(name)
+
+      CommandRunner.run(command, fail_on_error: true)
     end
   end
 end

@@ -26,6 +26,12 @@ module HyperSH
     end
 
     describe "#deploy" do
+      around(:each) do |example|
+        ShellMock.enable
+        example.run
+        ShellMock.disable
+      end
+
       subject { described_class.new.prepare(source) }
 
       context "with basic app params" do
@@ -36,10 +42,31 @@ module HyperSH
             "size" => "s1"
           }
         end
+        let!(:run_stub) { ShellMock.stub_command("hyper run -d --restart=always --size=s1 --name=app cromega/app") }
 
-        it "returns the deploy commands" do
-          commands = subject.deploy(params)
-          expect(commands.first.cmdline).to eq "hyper run -d --restart=always --size=s1 --name=app cromega/app"
+        context "when an app with the same name does not exist" do
+          before do
+            ShellMock.stub_command("hyper inspect app").to_exit(1)
+          end
+
+          it "deploys the new app" do
+            subject.deploy(params)
+            expect(run_stub).to have_run
+          end
+        end
+
+        context "when an app with the same name exists" do
+          before do
+            ShellMock.stub_command("hyper inspect app").to_exit(0)
+          end
+
+          let!(:delete_stub) { ShellMock.stub_command("hyper rm -f app") }
+
+          it "deletes the old app and deploys the new one" do
+            subject.deploy(params)
+            expect(delete_stub).to have_run
+            expect(run_stub).to have_run
+          end
         end
       end
 
@@ -49,31 +76,39 @@ module HyperSH
             "name" => "app",
             "image" => "cromega/app",
             "size" => "s1",
-            "ports" => ["25:25"],
+            "ports" => ["22:2222"],
           }
         end
+        let!(:run_stub) { ShellMock.stub_command("hyper run -d --restart=always --size=s1 --name=app -p 22:2222 cromega/app") }
 
-        it "returns the deploy commands" do
-          commands = subject.deploy(params)
-          expect(commands.first.cmdline).to include "-p 25:25"
+        before do
+          ShellMock.stub_command("hyper inspect app").to_exit(1)
+        end
+
+        it "deploys the app with ports exposed" do
+          subject.deploy(params)
+          expect(run_stub).to have_run
         end
       end
 
-      context "when environment variables are specified" do
+      context "when env vars are specified" do
         let(:params) do
           {
             "name" => "app",
             "image" => "cromega/app",
             "size" => "s1",
-            "env" => {
-              "ENV_VAR" => "env var"
-            }
+            "env" => { "FOO" => "BAR" }
           }
         end
+        let!(:run_stub) { ShellMock.stub_command("hyper run -d --restart=always --size=s1 --name=app -e FOO\\=BAR cromega/app") }
 
-        it "returns the deploy commands" do
-          commands = subject.deploy(params)
-          expect(commands.first.cmdline).to include "-e ENV_VAR\\=env\\ var"
+        before do
+          ShellMock.stub_command("hyper inspect app").to_exit(1)
+        end
+
+        it "deploys the app with ports exposed" do
+          subject.deploy(params)
+          expect(run_stub).to have_run
         end
       end
 
@@ -86,10 +121,17 @@ module HyperSH
             "public_ip" => "123.456.789.123"
           }
         end
+        let!(:run_stub) { ShellMock.stub_command("hyper run -d --restart=always --size=s1 --name=app cromega/app") }
+        let!(:fip_stub) { ShellMock.stub_command("hyper fip attach -f 123.456.789.123 app") }
 
-        it "returns the deploy commands" do
-          commands = subject.deploy(params)
-          expect(commands.last.cmdline).to eq "hyper fip attach -f 123.456.789.123 app"
+        before do
+          ShellMock.stub_command("hyper inspect app").to_exit(1)
+        end
+
+        it "deploys the app and attaches the public ip" do
+          subject.deploy(params)
+          expect(run_stub).to have_run
+          expect(fip_stub).to have_run
         end
       end
     end
