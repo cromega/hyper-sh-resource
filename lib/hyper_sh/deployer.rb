@@ -33,6 +33,8 @@ module HyperSH
       params["public_ip"]&.tap do |ip|
         attach_floating_ip(params["name"], ip)
       end
+
+      start_container(params["name"])
     end
 
     def container_exists?(name)
@@ -69,6 +71,14 @@ module HyperSH
       command = CommandBuilder.new.
         arg("rm").
         sparam("f").
+        arg(name)
+
+      CommandRunner.run(command, fail_on_error: true)
+    end
+
+    def start_container(name)
+      command = CommandBuilder.new.
+        arg("start").
         arg(name)
 
       CommandRunner.run(command, fail_on_error: true)
