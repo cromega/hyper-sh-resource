@@ -33,7 +33,7 @@ run_tests() {
 
   docker run -d --rm --name $container_name $IMAGE_NAME tail -f /dev/null
   docker cp . $container_name:/app
-  docker exec -w /app -t $container_name bundle exec rspec
+  docker exec -w /app -it $container_name bundle exec rspec $@
 }
 
 cleanup() {
@@ -43,5 +43,5 @@ cleanup() {
 trap cleanup EXIT
 
 update_base_image_if_deps_changed
-run_tests
+run_tests $@
 
