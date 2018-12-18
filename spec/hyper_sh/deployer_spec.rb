@@ -28,6 +28,7 @@ module HyperSH
     describe "#deploy" do
       around(:each) do |example|
         ShellMock.enable
+        ShellMock.dont_let_commands_run
         example.run
         ShellMock.disable
       end
