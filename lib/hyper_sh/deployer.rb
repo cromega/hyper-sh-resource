@@ -28,6 +28,7 @@ module HyperSH
         delete_container(params["name"])
       end
 
+      pull_image(params["image"])
       create_container(params)
 
       params["public_ip"]&.tap do |ip|
@@ -44,6 +45,14 @@ module HyperSH
 
       _, status = CommandRunner.run(command)
       status
+    end
+
+    def pull_image(image)
+      command = CommandBuilder.new.
+        arg("pull").
+        arg(image)
+
+      CommandRunner.run(command, fail_on_error: true)
     end
 
     def create_container(params)

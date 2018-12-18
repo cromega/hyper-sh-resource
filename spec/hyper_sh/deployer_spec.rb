@@ -35,6 +35,7 @@ module HyperSH
 
       subject { described_class.new.prepare(source) }
 
+      let!(:pull_stub) { ShellMock.stub_command("hyper pull cromega/app") }
       let!(:start_stub) { ShellMock.stub_command("hyper start app") }
 
       context "with basic app params" do
@@ -54,6 +55,7 @@ module HyperSH
 
           it "deploys the new app" do
             subject.deploy(params)
+            expect(pull_stub).to have_run
             expect(run_stub).to have_run
             expect(start_stub).to have_run
           end
@@ -69,6 +71,7 @@ module HyperSH
           it "deletes the old app and deploys the new one" do
             subject.deploy(params)
             expect(delete_stub).to have_run
+            expect(pull_stub).to have_run
             expect(run_stub).to have_run
             expect(start_stub).to have_run
           end
@@ -92,6 +95,7 @@ module HyperSH
 
         it "deploys the app with ports exposed" do
           subject.deploy(params)
+          expect(pull_stub).to have_run
           expect(run_stub).to have_run
           expect(start_stub).to have_run
         end
@@ -114,6 +118,7 @@ module HyperSH
 
         it "deploys the app with ports exposed" do
           subject.deploy(params)
+          expect(pull_stub).to have_run
           expect(run_stub).to have_run
           expect(start_stub).to have_run
         end
@@ -137,6 +142,7 @@ module HyperSH
 
         it "deploys the app and attaches the public ip" do
           subject.deploy(params)
+          expect(pull_stub).to have_run
           expect(run_stub).to have_run
           expect(start_stub).to have_run
           expect(fip_stub).to have_run
