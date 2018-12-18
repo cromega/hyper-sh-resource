@@ -24,18 +24,18 @@ module HyperSH
     end
 
     def deploy(params)
-      if container_exists?(params["name"])
-        delete_container(params["name"])
+      if container_exists?(params.fetch("name"))
+        delete_container(params.fetch("name"))
       end
 
-      pull_image(params["image"])
+      pull_image(params.fetch("image"))
       create_container(params)
 
       params["public_ip"]&.tap do |ip|
-        attach_floating_ip(params["name"], ip)
+        attach_floating_ip(params.fetch("name"), ip)
       end
 
-      start_container(params["name"])
+      start_container(params.fetch("name"))
     end
 
     def container_exists?(name)
@@ -60,8 +60,8 @@ module HyperSH
         arg("run").
         sparam("d").
         lparam("restart", "always").
-        lparam("size", params["size"]).
-        lparam("name", params["name"])
+        lparam("size", params.fetch("size")).
+        lparam("name", params.fetch("name"))
 
       params.fetch("ports", []).each do |port|
         command.sparam("p", port)
