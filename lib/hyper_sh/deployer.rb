@@ -7,7 +7,9 @@ require "hyper_sh/command_runner"
 module HyperSH
   class Deployer
     def prepare(source)
-      FileUtils.mkdir_p("/home/#{ENV['USER']}/.hyper")
+      config_dir = "#{ENV["HOME"]}/.hyper"
+      FileUtils.mkdir_p(config_dir)
+
       config = {
         auths: {},
         clouds: {
@@ -19,7 +21,7 @@ module HyperSH
         }
       }
 
-      File.write("/home/#{ENV['USER']}/.hyper/config.json", config.to_json)
+      File.write("#{config_dir}/config.json", config.to_json)
       self
     end
 

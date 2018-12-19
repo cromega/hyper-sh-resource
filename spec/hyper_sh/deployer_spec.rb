@@ -11,7 +11,7 @@ module HyperSH
     end
 
     describe "#prepare" do
-      let(:config_path) { "/home/#{ENV['USER']}/.hyper/config.json" }
+      let(:config_path) { "#{ENV["HOME"]}/.hyper/config.json" }
 
       it "creates the hypercli config file" do
         subject.prepare(source)
