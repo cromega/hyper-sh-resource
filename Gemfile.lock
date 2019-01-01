@@ -41,4 +41,4 @@ DEPENDENCIES
   shell_mock (~> 0.7)
 
 BUNDLED WITH
-   1.17.1
+   1.17.2

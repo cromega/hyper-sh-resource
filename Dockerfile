@@ -1,4 +1,4 @@
-FROM ruby:2.5-slim
+FROM ruby:2.6-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
